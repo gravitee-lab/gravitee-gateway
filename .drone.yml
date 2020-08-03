@@ -58,7 +58,7 @@ steps:
   - mvn clean verify --batch-mode
 
 
-- name: docker_build_n_push
+- name: docker_build
     image: docker:latest
     volumes:
       - name: docker_sock
