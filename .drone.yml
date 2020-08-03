@@ -16,12 +16,31 @@ steps:
   - echo "We are in [$(pwd)]"
   - ls -allh
   - echo 'ok!'
-- name: mavenbuild
+
+# A standard java maven build
+- name: mavenstdbuild
   # image: adoptopenjdk/openjdk11:jre-11.0.7_10-alpine
   image: maven:3-jdk-11
   commands:
     - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
     - mvn package
+
+# ---
+# The java maven build defined by the appveyor.yml file :
+# https://github.com/gravitee-lab/gravitee-gateway/blob/master/appveyor.yml
+# ---
+- name: build_appveyor
+  # image: adoptopenjdk/openjdk11:jre-11.0.7_10-alpine
+  image: maven:3-jdk-11
+  commands:
+  - mvn clean package --batch-mode -DskipTest
+- name: test_appveyor
+  # image: adoptopenjdk/openjdk11:jre-11.0.7_10-alpine
+  image: maven:3-jdk-11
+  commands:
+  - mvn clean verify --batch-mode
+
+
 - name: graviteebuild
   image: maven:3-jdk-11
   commands:
