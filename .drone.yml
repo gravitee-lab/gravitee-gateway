@@ -21,4 +21,8 @@ steps:
   image: maven:3-jdk-10
   commands:
     - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
-    - mvn build
+    # - mvn package
+- name: graviteebuild
+  image: maven:3-jdk-10
+  commands:
+    - mvn clean compile exec:java -Pdev -pl gravitee-gateway-standalone/gravitee-gateway-standalone-container
