@@ -18,11 +18,11 @@ steps:
   - echo 'ok!'
 - name: mavenbuild
   # image: adoptopenjdk/openjdk11:jre-11.0.7_10-alpine
-  image: maven:3-jdk-10
+  image: maven:3-jdk-11
   commands:
     - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
-    # - mvn package
+    - mvn package
 - name: graviteebuild
-  image: maven:3-jdk-10
+  image: maven:3-jdk-11
   commands:
     - mvn clean compile exec:java -Pdev -pl gravitee-gateway-standalone/gravitee-gateway-standalone-container
