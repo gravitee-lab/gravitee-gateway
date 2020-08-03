@@ -7,18 +7,22 @@ environment:
   APIM_VERSION: 6.57.45
 
 steps:
+
 - name: testpipeline1
   image: alpine
   commands:
   - echo 'This'
   - echo 'is'
-  - echo 'Gravitee Gateway!'
-- name: testpipeline2
-  image: alpine
-  commands:
+  - echo 'Gravitee Gateway version ${APIM_VERSION}!'
   - echo "We are in [$(pwd)]"
   - ls -allh
-  - echo 'ok!'
+
+- name: testbuild
+  image: plugins/docker
+  settings:
+    repo: hello-world
+    tags: latest
+    dry_run: true
 
 - name: docker_build_n_push
   image: docker:latest
