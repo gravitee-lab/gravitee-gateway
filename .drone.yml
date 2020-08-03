@@ -23,6 +23,11 @@ steps:
     repo: hello-world
     tags: latest
     dry_run: true
+  environment:
+    QUAY_BOT_USERNAME:
+      from_secret: quay_bot_username
+    QUAY_BOT_SECRET:
+      from_secret: quay_bot_secret
   commands:
   - echo "QUAY_BOT_USERNAME=[${QUAY_BOT_USERNAME}]"
   - echo "QUAY_BOT_SECRET=[${QUAY_BOT_SECRET}]"
