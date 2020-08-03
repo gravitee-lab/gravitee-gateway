@@ -21,8 +21,8 @@ steps:
   - echo 'ok!'
 
 - name: docker_build_n_push
-  # image: docker:latest
-  image: plugins/docker
+  image: docker:latest
+  # image: plugins/docker
   volumes:
     - name: docker_sock
       path: /var/run/docker.sock
