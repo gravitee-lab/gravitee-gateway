@@ -67,7 +67,7 @@ steps:
   - echo "QUAY_BOT_USERNAME=[${QUAY_BOT_USERNAME}]"
   - echo "QUAY_BOT_SECRET=[${QUAY_BOT_SECRET}]"
   - docker build --no-cache -t "quay.io/gravitee-lab/apim-gateway:$APIM_VERSION" -f Dockerfile docker/
-  - docker tag quay.io/gravitee-lab/apim-gateway:${APIM_VERSION} quay.io/gravitee-lab/apim-gateway:latest
+  - docker tag "quay.io/gravitee-lab/apim-gateway:${APIM_VERSION}" quay.io/gravitee-lab/apim-gateway:latest
   - docker push quay.io/gravitee-lab/apim-gateway:latest
   secrets: [ quay_bot_username, quay_bot_secret ]
 
