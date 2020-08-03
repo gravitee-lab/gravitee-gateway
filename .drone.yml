@@ -36,12 +36,18 @@ steps:
   secrets: [ quay_bot_username, quay_bot_secret ]
 
 - name: docker_build_n_push
-  image: docker:latest
-  # image: plugins/docker
-  volumes:
-    - name: docker_sock
-      path: /var/run/docker.sock
+  # image: docker:latest
+  image: plugins/docker
+  # volumes:
+    # - name: docker_sock
+      # path: /var/run/docker.sock
+  environment:
+    QUAY_BOT_USERNAME:
+      from_secret: quay_bot_username
+    QUAY_BOT_SECRET:
+      from_secret: quay_bot_secret
   commands:
+  - echo "APIM_VERSION=[${APIM_VERSION}]"
   - echo "QUAY_BOT_USERNAME=[${QUAY_BOT_USERNAME}]"
   - echo "QUAY_BOT_SECRET=[${QUAY_BOT_SECRET}]"
   - echo "QUAY_BOT_USERNAME=[$QUAY_BOT_USERNAME]"
