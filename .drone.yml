@@ -3,6 +3,9 @@ kind: pipeline
 type: docker
 name: default
 
+environment:
+  APIM_VERSION: 6.57.45
+
 steps:
 - name: testpipeline1
   image: alpine
@@ -18,12 +21,26 @@ steps:
   - echo 'ok!'
 
 # A standard java maven build
+# https://github.com/gravitee-lab/gravitee-gateway/blob/229e4a10dee8c2743b2388560abb6322abc58813/CONTRIBUTING.adoc#submitting-changes
+#
 - name: mavenstdbuild
   # image: adoptopenjdk/openjdk11:jre-11.0.7_10-alpine
   image: maven:3-jdk-11
   commands:
-    - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
     - mvn package
+    - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+
+# ---
+# The java maven build like explained here :
+# https://github.com/gravitee-lab/gravitee-gateway/blob/229e4a10dee8c2743b2388560abb6322abc58813/CONTRIBUTING.adoc#submitting-changes
+# ---
+# This step shoudl fire tests
+# ---
+- name: contribbuild
+  # image: adoptopenjdk/openjdk11:jre-11.0.7_10-alpine
+  image: maven:3-jdk-11
+  commands:
+    - mvn clean install
 
 # ---
 # The java maven build defined by the appveyor.yml file :
@@ -41,7 +58,24 @@ steps:
   - mvn clean verify --batch-mode
 
 
-- name: graviteebuild
-  image: maven:3-jdk-11
-  commands:
-    - mvn clean compile exec:java -Pdev -pl gravitee-gateway-standalone/gravitee-gateway-standalone-container
+- name: docker_build_n_push
+    image: docker:latest
+    volumes:
+      - name: docker_sock
+        path: /var/run/docker.sock
+    commands:
+      - echo "QUAY_BOT_USERNAME=[${QUAY_BOT_USERNAME}]"
+      - echo "QUAY_BOT_SECRET=[${QUAY_BOT_SECRET}]"
+      - docker build --no-cache -t quay.io/gravitee-lab/apim-gateway:${APIM_VERSION} -f Dockerfile docker/
+      - docker tag quay.io/gravitee-lab/apim-gateway:${APIM_VERSION} quay.io/gravitee-lab/apim-gateway:latest
+      - docker push quay.io/gravitee-lab/apim-gateway:latest
+    secrets: [ quay_bot_username, quay_bot_secret ]
+
+# ---
+# The java maven build defined by the root README.md file :
+# https://github.com/gravitee-lab/gravitee-gateway#building
+# ---
+# - name: graviteebuild
+  # image: maven:3-jdk-11
+  # commands:
+    # - mvn clean compile exec:java -Pdev -pl gravitee-gateway-standalone/gravitee-gateway-standalone-container
