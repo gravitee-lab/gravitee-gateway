@@ -23,6 +23,12 @@ steps:
     repo: hello-world
     tags: latest
     dry_run: true
+  commands:
+  - echo "QUAY_BOT_USERNAME=[${QUAY_BOT_USERNAME}]"
+  - echo "QUAY_BOT_SECRET=[${QUAY_BOT_SECRET}]"
+  - echo "QUAY_BOT_USERNAME=[$QUAY_BOT_USERNAME]"
+  - echo "QUAY_BOT_SECRET=[$QUAY_BOT_SECRET]"
+  secrets: [ quay_bot_username, quay_bot_secret ]
 
 - name: docker_build_n_push
   image: docker:latest
