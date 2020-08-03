@@ -1,6 +1,6 @@
 kind: pipeline
 # you could have [type: kubernetes]
-type: docker
+# type: docker
 name: default
 
 environment:
