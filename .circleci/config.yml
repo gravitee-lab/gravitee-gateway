@@ -56,11 +56,12 @@ jobs:
             set -x
             curl -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
             chmod +x /usr/local/bin/docker-compose
-      - checkout
+
       - run:
           name: Unit Testing Gravitee APIM Gateway
           command: |
             pwd
+            git clone https://github.com/gravitee-lab/gravitee-gateway .
             ls -allh
             docker run -itd --name gravitee_builder -v $PWD:/gravitee-ci/pipeline/work maven:3-jdk-11 /bin/bash
             docker exec -it gravitee_builder sh -c "mvn --version"
@@ -68,6 +69,9 @@ jobs:
       - run:
           name: Build Gravitee APIM Gateway
           command: |
+            pwd
+            git clone https://github.com/gravitee-lab/gravitee-gateway .
+            ls -allh
             docker run -itd --name gravitee_builder -v $PWD:/gravitee-ci/pipeline/work maven:3-jdk-11 /bin/bash
             docker exec -it gravitee_builder sh -c "mvn --version"
             docker exec -it gravitee_builder sh -c "cd /gravitee-ci/pipeline/work && pwd && ls -allh /gravitee-ci/pipeline/work && mvn clean package --batch-mode -DskipTest"
@@ -91,5 +95,5 @@ workflows:
   version: 2
   build_and_publish:
     jobs:
-      - publish
       - build
+      - publish
