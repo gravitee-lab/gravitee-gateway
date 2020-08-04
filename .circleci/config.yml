@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       # using custom image, see [./.circleci/docker/primary/Dockerfile]
-      - image: circleci/cci-gravitee-library-maven:0.0.2
+      - image: quay.io/gravitee-lab/cci-gravitee-library-maven:0.0.2-apim
     working_directory: /gravitee-ci/pipeline/work
 
     environment:
