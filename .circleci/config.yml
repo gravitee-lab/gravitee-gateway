@@ -72,7 +72,7 @@ jobs:
             DESIRED_VERSION='feature/add_circleci_yaml'
             pwd
             ls -allh
-            docker run -itd --name gravitee_builder -v $PWD:/gravitee-ci/pipeline/work maven:3-jdk-11 /bin/bash
+            # docker run -itd --name gravitee_builder -v $PWD:/gravitee-ci/pipeline/work maven:3-jdk-11 /bin/bash
             docker exec -it gravitee_builder sh -c "mvn --version"
             docker exec -it gravitee_builder sh -c "cd /gravitee-ci/pipeline/work && git clone https://github.com/gravitee-lab/gravitee-gateway . && git checkout ${DESIRED_VERSION} && pwd && ls -allh ."
             docker exec -it gravitee_builder sh -c "cd /gravitee-ci/pipeline/work && pwd && ls -allh /gravitee-ci/pipeline/work && mvn clean package --batch-mode -DskipTest"
