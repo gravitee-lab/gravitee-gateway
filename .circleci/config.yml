@@ -5,7 +5,8 @@ jobs:
     working_directory: ~/circleci-java-gravitee-demo
 
     docker:
-      - image: circleci/openjdk:8-jdk-stretch
+      # - image: circleci/openjdk:8-jdk-stretch
+      - image: maven:3-jdk-11
       - image: circleci/postgres:9.6.3-alpine
         environment:
           POSTGRES_USER: root
