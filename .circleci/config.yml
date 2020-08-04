@@ -1,35 +1,97 @@
-version: 2.1
+version: 2
 jobs:
-  build:
-
-    working_directory: ~/circleci-java-gravitee-demo
-
+  maven_build:
     docker:
-      # - image: circleci/openjdk:8-jdk-stretch
-      - image: maven:3-jdk-11
-      - image: circleci/postgres:9.6.3-alpine
-        environment:
-          POSTGRES_USER: root
-          POSTGRES_DB: circle_test
+      # using custom image, see [./.circleci/docker/primary/Dockerfile]
+      - image: circleci/cci-gravitee-library-maven:0.0.2
+    working_directory: /gravitee-ci/pipeline/work
+
+    environment:
+      TEST_RESULTS: /gravitee-ci/pipeline/tmp/test-results
 
     steps:
-
       - checkout
-
-      - restore_cache:
-          key: circleci-java-gravitee-demo-{{ checksum "pom.xml" }}
-
-      - run: mvn dependency:go-offline
-
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: circleci-java-gravitee-demo-{{ checksum "pom.xml" }}
-
-      - run: mvn package
-
-      - store_test_results:
-          path: target/surefire-reports
+      - run: mkdir -p $TEST_RESULTS
+      - run:
+          name: Run unit tests
+          environment:
+            DATABASE_URL: "someurl"
+            DB_MIGRATIONS: /some/where/db/migrations
+          command: |
+            set -ou pipefail
+            # trap "gravitee-junit-report <${TEST_RESULTS}/gravitee-unit-tests.out > ${TEST_RESULTS}/gravitee-test-report.xml" EXIT
+            # Notice this `set -o pipefail`, this will cause script to fail if `mvn test` fails
+            # without this option script will return success regardless of testing result due to pipe after test command
+            mvn clean test | tee ${TEST_RESULTS}/gravitee-unit-tests.out
 
       - store_artifacts:
-          path: target/demo-java-spring-0.0.1-SNAPSHOT.jar
+          path: /tmp/test-results
+          destination: raw-test-output
+
+      - store_test_results:
+          path: /tmp/test-results
+
+  oci_build:
+    docker:
+      # using custom image, see [./.circleci/docker/primary/Dockerfile]
+      - image: quay.io/gravitee-lab/cci-library-dind:0.0.2-apim
+    working_directory: /gravitee-ci/pipeline/work
+
+    steps:
+      - setup_remote_docker
+      # This should go into custom primary image, here's only for the sake of explanation
+      - run:
+          name: Install Docker client
+          command: |
+            set -x
+            VER="17.03.0-ce"
+            curl -L -o /tmp/docker-$VER.tgz https://get.docker.com/builds/Linux/x86_64/docker-$VER.tgz
+            tar -xz -C /tmp -f /tmp/docker-$VER.tgz
+            mv /tmp/docker/* /usr/bin
+
+      # This should go into custom primary image, here's only for the sake of explanation
+      - run:
+          name: Install Docker Compose
+          command: |
+            set -x
+            curl -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+            chmod +x /usr/local/bin/docker-compose
+
+      - run:
+          name: Unit Testing Gravitee APIM Gateway
+          command: |
+            docker run -itd --name gravitee_builder -v $PWD:/gravitee-ci/pipeline/work maven:3-jdk-11 /bin/bash
+            docker exec -it gravitee_builder sh -c "mvn --version"
+            docker exec -it gravitee_builder sh -c "cd /gravitee-ci/pipeline/work && pwd && ls -allh /gravitee-ci/pipeline/work && mvn clean install"
+      - run:
+          name: Build Gravitee APIM Gateway
+          command: |
+            docker run -itd --name gravitee_builder -v $PWD:/gravitee-ci/pipeline/work maven:3-jdk-11 /bin/bash
+            docker exec -it gravitee_builder sh -c "mvn --version"
+            docker exec -it gravitee_builder sh -c "cd /gravitee-ci/pipeline/work && pwd && ls -allh /gravitee-ci/pipeline/work && mvn clean package --batch-mode -DskipTest"
+
+
+      - deploy:
+          name: Build and push Docker image
+          command: |
+            APIM_VERSION=6.57.45
+            GIT_COMMIT_ID=${APIM_VERSION}
+            GIT_COMMIT_ID=${CIRCLE_BUILD_NUM}
+            TAG="0.0.03-apim-${GIT_COMMIT_ID}"
+            pwd
+            docker build --no-cache -t "quay.io/gravitee-lab/apim-gateway:${TAG}" -f docker/Dockerfile docker/
+            docker login -u="$QUAY_BOT_USERNAME" -p="$QUAY_BOT_SECRET" quay.io
+            docker push "quay.io/gravitee-lab/apim-gateway:${TAG}"
+            pwd
+            # ---
+            export DTAG="quay.io/gravitee-lab/cci-library-dind:0.0.2-apim"
+            export QUAY_BOT_USERNAME=gravitee-lab+graviteebot
+            export QUAY_BOT_SECRET=VDZBTFIMWPJZ3WOFBEBM2X9YIRHC65ZPG4EIHO30QKG7FTHMWUXPRQYMRMM5ELFI
+            echo "QUAY_BOT_USERNAME=[$QUAY_BOT_USERNAME]"
+            echo "QUAY_BOT_SECRET=[${QUAY_BOT_SECRET}]"
+            git clone	git@github.com:gravitee-lab/gravitee-gateway.git gravitotee/
+            cd gravitotee/
+            pwd
+            docker build --no-cache -t "quay.io/gravitee-lab/apim-gateway:${DTAG}" -f .circleci/docker/primary/dind/Dockerfile ./.circleci/docker/primary/dind/
+            docker login -u="$QUAY_BOT_USERNAME" -p="$QUAY_BOT_SECRET" quay.io
+            docker push "quay.io/gravitee-lab/apim-gateway:${TAG}"
