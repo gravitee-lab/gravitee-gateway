@@ -31,7 +31,7 @@ jobs:
       - store_test_results:
           path: /tmp/test-results
 
-  oci_build:
+  publish:
     docker:
       # using custom image, see [./.circleci/docker/primary/Dockerfile]
       - image: quay.io/gravitee-lab/cci-library-dind:0.0.2-apim
@@ -83,3 +83,10 @@ jobs:
             docker login -u="$QUAY_BOT_USERNAME" -p="$QUAY_BOT_SECRET" quay.io
             docker push "quay.io/gravitee-lab/apim-gateway:${TAG}"
             pwd
+
+workflows:
+  version: 2
+  build_and_publish:
+    jobs:
+      - build
+      - publish
