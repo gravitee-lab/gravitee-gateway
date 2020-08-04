@@ -60,8 +60,10 @@ jobs:
       - run:
           name: Unit Testing Gravitee APIM Gateway
           command: |
+            DESIRED_VERSION='feature/add_circleci_yaml'
             pwd
             git clone https://github.com/gravitee-lab/gravitee-gateway .
+            git checkout ${DESIRED_VERSION}
             ls -allh
             docker run -itd --name gravitee_builder -v $PWD:/gravitee-ci/pipeline/work maven:3-jdk-11 /bin/bash
             docker exec -it gravitee_builder sh -c "mvn --version"
@@ -69,8 +71,10 @@ jobs:
       - run:
           name: Build Gravitee APIM Gateway
           command: |
+            DESIRED_VERSION='feature/add_circleci_yaml'
             pwd
             git clone https://github.com/gravitee-lab/gravitee-gateway .
+            git checkout ${DESIRED_VERSION}
             ls -allh
             docker run -itd --name gravitee_builder -v $PWD:/gravitee-ci/pipeline/work maven:3-jdk-11 /bin/bash
             docker exec -it gravitee_builder sh -c "mvn --version"
