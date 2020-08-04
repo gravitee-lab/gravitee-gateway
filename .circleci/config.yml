@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  maven_build:
+  build:
     docker:
       # using custom image, see [./.circleci/docker/primary/Dockerfile]
       - image: circleci/cci-gravitee-library-maven:0.0.2
