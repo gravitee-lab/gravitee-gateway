@@ -22,6 +22,8 @@ ARG GRAVITEEIO_DOWNLOAD_URL=https://download.gravitee.io/graviteeio-apim/distrib
 ENV GRAVITEEIO_HOME /opt/graviteeio-gateway
 
 RUN apk update \
+  && apk add ca-certificates && rm -rf /var/cache/apk/* \
+	&& update-ca-certificates \
 	&& apk add --update --no-cache zip unzip netcat-openbsd wget \
 	&& wget ${GRAVITEEIO_DOWNLOAD_URL}/graviteeio-full-${GRAVITEEIO_VERSION}.zip --no-check-certificate -P /tmp \
     && unzip /tmp/graviteeio-full-${GRAVITEEIO_VERSION}.zip -d /tmp/ \
