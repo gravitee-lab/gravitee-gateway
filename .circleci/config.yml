@@ -100,6 +100,4 @@ workflows:
     jobs:
       - build
       - publish
-          requires:
-            - build
           context: gravitee-lab
