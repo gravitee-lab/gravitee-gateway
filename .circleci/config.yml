@@ -77,7 +77,7 @@ jobs:
             # docker exec -it gravitee_builder sh -c "cd /gravitee-ci/pipeline/work && git clone https://github.com/gravitee-lab/gravitee-gateway . && git checkout ${DESIRED_VERSION} && pwd && ls -allh ."
             docker exec -it gravitee_builder sh -c "cd /gravitee-ci/pipeline/work && pwd && ls -allh /gravitee-ci/pipeline/work && mvn clean package --batch-mode -DskipTest"
 
-
+      - checkout
       - deploy:
           name: Build and push Docker image
           command: |
