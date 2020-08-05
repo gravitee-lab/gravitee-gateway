@@ -99,4 +99,4 @@ workflows:
     jobs:
       - build
       - publish
-          context: gravitee-lab
+          # context: gravitee-lab
