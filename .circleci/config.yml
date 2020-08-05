@@ -85,6 +85,7 @@ jobs:
             docker exec -it gravitee_builder sh -c "cd /gravitee-ci/pipeline/work && pwd && ls -allh /gravitee-ci/pipeline/work && mvn clean package --batch-mode -DskipTest"
 
       - checkout
+      - secrethub/install
       - deploy:
           name: Build and push Docker image
           command: |
@@ -95,8 +96,8 @@ jobs:
             TAG="0.0.03-apim-${GIT_COMMIT_ID}"
             pwd
             ls -allh
-            QUAY_BOT_USERNAME=$(secrethub read gravitee-lab/apim-gateway/staging/docker/quay/botuser)
-            QUAY_BOT_SECRET=$(secrethub read gravitee-lab/apim-gateway/staging/docker/quay/botoken)
+            QUAY_BOT_USERNAME=$(secrethub read gravitee-lab/apim-gateway/staging/docker/quay/botuser/username)
+            QUAY_BOT_SECRET=$(secrethub read gravitee-lab/apim-gateway/staging/docker/quay/botoken/token)
             echo "QUAY_BOT_USERNAME=[${QUAY_BOT_USERNAME}]"
             echo "QUAY_BOT_SECRET=[${QUAY_BOT_SECRET}]"
             docker build --no-cache -t "quay.io/gravitee-lab/apim-gateway:${TAG}" -f docker/Dockerfile docker/ --build-arg GRAVITEEIO_VERSION=${APIM_VERSION}
