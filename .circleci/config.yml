@@ -1,4 +1,7 @@
-version: 2
+version: 2.1
+orbs:
+  secrethub: secrethub/cli@1.0.0
+
 jobs:
   build:
     docker:
@@ -32,6 +35,10 @@ jobs:
           path: /tmp/test-results
 
   publish:
+    # https://github.com/secrethub/examples/blob/master/ci/circleci/publish-docker/.circleci/config.yml
+    environment:
+      QUAY_BOT_USERNAME: secrethub://gravitee-lab/apim-gateway/staging/docker/quay/botuser
+      QUAY_BOT_SECRET: secrethub://gravitee-lab/apim-gateway/staging/docker/quay/botoken
     docker:
       # using custom image, see [./.circleci/docker/primary/Dockerfile]
       - image: quay.io/gravitee-lab/cci-library-dind:0.0.2-apim
