@@ -87,9 +87,9 @@ jobs:
             TAG="0.0.03-apim-${GIT_COMMIT_ID}"
             pwd
             ls -allh
-            docker build --no-cache -t "quay.io/gravitee-lab/apim-gateway:${TAG}" -f docker/Dockerfile docker/
             echo "QUAY_BOT_USERNAME=[${QUAY_BOT_USERNAME}]"
             echo "QUAY_BOT_SECRET=[${QUAY_BOT_SECRET}]"
+            docker build --no-cache -t "quay.io/gravitee-lab/apim-gateway:${TAG}" -f docker/Dockerfile docker/
             docker login -u="$QUAY_BOT_USERNAME" -p="$QUAY_BOT_SECRET" quay.io
             docker push "quay.io/gravitee-lab/apim-gateway:${TAG}"
             pwd
