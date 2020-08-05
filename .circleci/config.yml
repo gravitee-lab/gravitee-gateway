@@ -95,7 +95,6 @@ jobs:
             pwd
 
 workflows:
-  version: 2
   build_and_publish:
     jobs:
       - build
