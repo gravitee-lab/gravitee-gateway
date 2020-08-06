@@ -40,7 +40,8 @@ jobs:
       QUAY_BOT_USERNAME: secrethub://gravitee-lab/apim-gateway/staging/docker/quay/botuser
       QUAY_BOT_SECRET: secrethub://gravitee-lab/apim-gateway/staging/docker/quay/botoken
     docker:
-      # using custom image, see [./.circleci/docker/primary/Dockerfile]
+      # using custom image, see [./.circleci/docker/primary/Dockerfile] in
+      # the pipeline operator https://github.com/gravitee-lab/cci-pipeline-operator/issues/1
       - image: quay.io/gravitee-lab/cci-library-dind:0.0.2-apim
     working_directory: /gravitee-ci/pipeline/work
 
